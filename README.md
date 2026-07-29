@@ -1,78 +1,72 @@
-📒 Kirana Ledger — Digital Udhar Manager
+# 📒 Kirana Ledger — digital udhaar manager
 
-A modern web application for small shopkeepers (kirana stores) to manage customer credit (udhaar), track payments, and maintain digital records.
+Small kirana store owners across India still track customer credit (udhaar) in a paper notebook — easy to lose, easy to dispute, impossible to search. Kirana Ledger replaces that notebook with a simple digital ledger built for shopkeepers who aren't tech-savvy, so they can see exactly who owes what without flipping through pages.
 
-🔗 **Live Demo:** [kirana-ledger.netlify.app]
-(https://kirana-ledger.netlify.app)  
-💻 **GitHub:** [github.com/tannukri01/kirana-ledger](https://github.com/tannukri01/kirana-ledger)
+🔗 **Live demo:** [kirana-ledger.netlify.app](https://kirana-ledger.netlify.app)
+💻 **Source:** [github.com/tannukri01/kirana-ledger](https://github.com/tannukri01/kirana-ledger)
 
----
+![demo](docs/demo.gif)
+<!-- Screen recording of: add customer → record udhaar → mark payment → see updated dashboard -->
 
-## ✨ Features
+## Impact / numbers
 
-- **Customer Management** — Add, edit, and manage customer profiles
-- **Credit Tracking** — Record udhaar (credit) transactions per customer
-- **Payment History** — Track who paid what and when
-- **Dashboard Analytics** — Visual overview of total credit, payments, and dues
-- **Authentication** — Secure login with NextAuth.js
-- **Responsive Design** — Works on mobile and desktop
+- Tracks **unlimited customers** with a full transaction history per customer, not just a running total
+- Dashboard surfaces **total outstanding credit** at a glance — the one number a shopkeeper actually needs each morning
+- Auth-protected per-shop data via NextAuth.js — one store owner can't see another's ledger
 
----
+## How it works
 
-## 🛠 Tech Stack
+1. Shop owner signs in (NextAuth.js) — data is scoped to their account only
+2. Add a customer once; record udhaar (credit given) or a payment against them any time after
+3. Every transaction is timestamped and stored via Prisma, so "who paid when" is never in dispute
+4. Dashboard aggregates all customers into total credit outstanding, total paid, and dues at a glance
 
-| Layer | Technology |
-|-------|-----------|
+```
+Shop owner login → Customer record → Udhaar/payment entry → Prisma → Postgres → Dashboard aggregation
+```
+
+## A technical decision worth mentioning
+
+Went with PostgreSQL + Prisma instead of a NoSQL store because this data is inherently relational — a customer has many transactions, and every transaction needs an accurate running balance. A schema with real foreign keys and types made "total dues per customer" a simple aggregate query instead of application-level bookkeeping, and Prisma's generated types kept API routes honest against the schema as it evolved.
+
+## Tech stack
+
+| Layer    | Technology                           |
+| -------- | ------------------------------------ |
 | Frontend | Next.js 14, TypeScript, Tailwind CSS |
-| Backend | Next.js API Routes, REST API |
-| Database | PostgreSQL (Neon) |
-| ORM | Prisma |
-| Auth | NextAuth.js |
-| Deploy | Netlify |
+| Backend  | Next.js API Routes, REST            |
+| Database | PostgreSQL (Neon)                    |
+| ORM      | Prisma                               |
+| Auth     | NextAuth.js                          |
+| Deploy   | Netlify                              |
 
----
-
-## 🚀 Getting Started
+## Running it locally
 
 ```bash
-# Clone
 git clone https://github.com/tannukri01/kirana-ledger.git
 cd kirana-ledger
-
-# Install
 npm install
+```
 
-# Setup env
-cp .env.example .env.local
-# Add your DATABASE_URL and NEXTAUTH_SECRET
+Create a `.env.local` with:
 
-# Generate Prisma client
-npx prisma generate
-
-# Run dev server
-npm run dev
-Open http://localhost:3000
-
-🔧 Environment Variables
-env
-
-
+```
 DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
 NEXTAUTH_SECRET="your-secret-key-here"
 NEXTAUTH_URL="http://localhost:3000"
-📁 Project Structure
+```
 
+```bash
+npx prisma generate
+npm run dev
+```
 
-src/
-├── app/                 # Next.js App Router
-│   ├── api/            # API routes (auth, customers, transactions)
-│   ├── dashboard/      # Main dashboard UI
-│   └── page.tsx        # Landing page
-├── components/         # Reusable UI components
-├── lib/               # Utilities, Prisma client
-└── prisma/            # Database schema
-🏗️ Built By
-Tannu Singh — Full Stack Developer
+## What I'd build next
 
+- WhatsApp payment reminders sent directly to customers with outstanding udhaar
+- Offline-first support (PWA) since many kirana stores have unreliable internet
+- Bulk import of existing paper-ledger customers via CSV
 
+---
 
+Built by **Tannu Kumari** — [LinkedIn](https://www.linkedin.com/in/tannu-kumariofficial) · [GitHub](https://github.com/tannukri01)
